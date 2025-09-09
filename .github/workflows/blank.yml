@@ -1,0 +1,26 @@
+name: Auto merge PRs from exercism-solutions-syncer
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+
+    steps:
+      - name: Check PR author
+        if: github.event.pull_request.user.login == 'exercism-solutions-syncer[bot]'
+        run: echo "PR opened by exercism-solutions-syncer, proceeding to merge."
+
+      - name: Auto-merge PR
+        if: github.event.pull_request.user.login == 'exercism-solutions-syncer[bot]'
+        run: gh pr merge ${{ github.event.pull_request.number }} --squash --admin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
